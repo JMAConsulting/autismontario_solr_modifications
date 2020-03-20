@@ -54,13 +54,13 @@ class Query extends QueryBase implements QueryInterface {
 
     // This chunk is the only reason the files in this directory exist.
     if ($this->entityTypeId == 'civicrm_contact') {
-      $params['contact_sub_type'] = ['LIKE' => '%' . "Provider" . '%'];
-      $params['group'] = [
-        'IN' => [
-          '0' => 'Providers'
-        ]
-      ];
-      $params['custom-817'] = ['=' => 1];
+      $params['contact_sub_type'] = ['LIKE' => '%' . "Service" . '%'];
+      //$params['group'] = [
+      //  'IN' => [
+      //    '0' => 'Providers'
+      //  ]
+      //];
+      $params['custom_872'] = ['=' => 'Current Listing'];
     }
 
     // The rest is just extending/overriding the Civicrm Entity classes/functions.

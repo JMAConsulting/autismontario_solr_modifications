@@ -16,6 +16,12 @@ function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\s
   // Adds a "foo" field with value "bar" to all documents.
   foreach ($documents as $id => $document) {
     if ($document->ss_search_api_datasource == 'entity:civicrm_event') {
+      $parts = explode('/', $document->ss_search_api_id);
+      $id = substr($parts[1], 0, strpos($parts[1], ':'));
+      $document->setField('tm_en_chapters', getEventChapters($id));
+      $document->setField('tm_custom_60', getEventChapters($id));
+      $document->setField('tm_fr_chapters', getEventChapters($id, 'fr'));
+      $document->setField('itm_field_chapter_reference', getNodeEventChapters($id));
       $document->setField('ss_type', 'Event');
     }
     if ($document->ss_search_api_datasource == 'entity:civicrm_contact') {
@@ -23,7 +29,77 @@ function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\s
 //        unset($documents[$id]);
 //        continue;
       }
-      $document->setField('ss_type', 'Contact');
+      if (isset($document->ss_contact_sub_type) && $document->ss_contact_sub_type == "service_provider") {
+        $fields = ['863', '866', '867'];
+        $document->setField('ss_type', 'Service Listing');
+//        foreach ($fields as $field) {
+//          $fieldName = 'tm_custom_' . $field;
+          if (isset($document->tm_custom_863)) {
+            $values = $document->tm_custom_863;
+            $field = 863;
+            $frValues = $enValues = [];
+            if (is_array($values)) {
+              foreach ($values as $key => $value) {
+                $values[$key] = getOptionLabel($field, $value);
+                $enValues[$key] = getOptionLabel($field, $value);
+                $frValues[$key] = getOptionLabel($field, $value, 'fr');
+              }
+            }
+            else {
+              $originalValue = $values;
+              $values = getOptionLabel($field, $originalValue);
+              $enValues = getOptionLabel($field, $originalValue);
+              $frValues = getOptionLabel($field, $originalValue, 'fr');
+            }
+            $document->setField('tm_en_custom_' . $field, $enValues);
+            $document->setField('sort_en_custom_' . $field, $enValues);
+            $document->setField('tm_fr_custom_' . $field, $frValues);
+            $document->setField('sort_fr_custom_' . $field, $frValues);
+            $document->setField('ism_custom_' . $field, $values);
+            $document->setField('sort_custom_' . $field, $values);
+          }
+          if (isset($document->tm_custom_866)) {
+            $values = $document->tm_custom_866;
+            $field = 866;
+            $frValues = $enValues = [];
+            if (is_array($values)) {
+              foreach ($values as $key => $value) {
+                $values[$key] = getOptionLabel($field, $value);
+                $enValues[$key] = getOptionLabel($field, $value);
+                $frValues[$key] = getOptionLabel($field, $value, 'fr');
+              }
+            }
+            else {
+              $originalValue = $values;
+              $values = getOptionLabel($field, $originalValue);
+              $enValues = getOptionLabel($field, $originalValue);
+              $frValues = getOptionLabel($field, $originalValue, 'fr');
+            }
+            //$document->setField('tm_en_custom_' . $field, $enValues);
+            //$document->setField('sort_en_custom_' . $field, $enValues);
+            $document->setField('tm_fr_custom_' . $field, $frValues);
+            //$document->setField('sort_fr_custom_' . $field, $frValues);
+            $document->setField('tm_custom_' . $field, $values);
+            //$document->setField('sort_custom_' . $field, $values);
+          }
+        //}
+        if (isset($document->tm_custom_60)) {
+          $values = $document->tm_custom_60;
+          $chapterIds = [];
+          if (is_array($document->tm_custom_60)) {
+            foreach ($document->tm_custom_60 as $chapter) {
+              $chapterIds[] = getChapterId($chapter);
+            }
+          }
+          else {
+            $chapterIds[] = getChapterId($document->tm_custom_60);
+          }
+          $document->setField('itm_field_chapter_reference', $chapterIds);
+        }
+      }
+      else {
+        $document->setField('ss_type', 'Contact');
+      }
     }
   }
 }
@@ -36,4 +112,55 @@ function autism_solr_mods_entity_type_alter(array &$entity_types) {
  // $entity_types['civicrm_contact']->setHandlerClass('access', CustomAccessHandler::class);
 }
 
+function getOptionLabel($customFieldID, $optionValue, $language = 'en') {
+  \Drupal::service('civicrm')->initialize();
+  $customFieldDetails = civicrm_api3('CustomField', 'getsingle', ['id' => $customFieldID]);
+  $params = [
+    'option_group_id' => $customFieldDetails['option_group_id'],
+    'value' => $optionValue,
+  ];
 
+  if ($language == 'fr') {
+    $params['options'] = ['language' => 'fr_CA'];
+  }
+  else {
+    $params['options'] = ['language' => 'en_US'];
+  }
+  $optionValue = civicrm_api3('OptionValue', 'getsingle', $params);
+  return $optionValue['label'];
+}
+
+function getEventChapters($eventId, $language = 'en') {
+  \Drupal::service('civicrm')->initialize();
+  $params = [
+    'id' => $eventId,
+    'return' => ['custom_325'],
+  ];
+  if ($language == 'fr') {
+    $params['options'] = ['language' => 'fr_CA'];
+  }
+  $event = civicrm_api3('Event', 'getsingle', $params);
+  return $event['custom_325'];
+}
+
+function getNodeEventChapters($eventId) {
+  $chapterIds = [];
+  $chapters = getEventChapters($eventId);
+  if (is_array($chapters)) {
+    foreach ($chapters as $chapter) {
+      $chapterIds[] = getChapterId($chapter);
+    }
+  }
+  else {
+    $chapterIds[] = getChapterId($chapters);
+  }
+  return $chapterIds;
+}
+
+function getChapterId($chapter) {
+  $db_query = \Drupal::database()->select('taxonomy_term__field_civicrm_chapter_value', 'tn');
+  $entity_id_field = $db_query->addField('tn', 'entity_id');
+  $db_query->condition('tn.field_civicrm_chapter_value_value', $chapter);
+  $result = $db_query->execute()->fetchAll();
+  return $result[0]->{$entity_id_field};
+}

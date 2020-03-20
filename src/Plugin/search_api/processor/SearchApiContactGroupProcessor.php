@@ -63,8 +63,9 @@ class SearchApiContactGroupProcessor extends ProcessorPluginBase {
       // Load Civi service so we can use its query lib.
       $civicrm = \Drupal::service('civicrm');
       $civicrm->initialize();
-
-      $query = 'SELECT id FROM civicrm_contact c WHERE c.contact_sub_type = "Provider" AND c.id IN (';
+      $tableName = civicrm_api3('CustomGroup', 'getsingle', ['id' => 69])['table_name'];
+      $column = civicrm_api3('CustomField', 'getsingle', ['id' => 872])['column_name'];
+      $query = 'SELECT c.id FROM civicrm_contact c INNER JOIN ' . $tableName . ' s ON s.entity_id = c.id WHERE c.contact_sub_type LIKE "%Service%" AND s.' . $column . ' = "Current Listing" AND c.id IN (';
       // Building the list of contact_ids for the "IN" clause of the query.
       foreach ($contact_id_list as $contact_id => $solr_item_id) {
         $query .= $contact_id . ",";
