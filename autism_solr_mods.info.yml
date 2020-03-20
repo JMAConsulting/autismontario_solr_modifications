@@ -1,0 +1,5 @@
+name: Autism Solr Modifications
+type: module
+description: Solr Modifications to work with Civi Entities, Events, Contacts
+core: 8.x
+package: Custom

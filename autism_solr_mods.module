@@ -1,0 +1,39 @@
+<?php
+
+
+/**
+ * Alter Solr documents before they are sent to Solr for indexing.
+ *
+ * @param array $documents
+ *   An array of SearchApiSolrDocument objects ready to be indexed, generated
+ *   from $items array.
+ * @param SearchApiIndex $index
+ *   The search index for which items are being indexed.
+ * @param array $items
+ *   An array of items being indexed.
+ */
+function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\search_api\IndexInterface $index, array $items) {
+  // Adds a "foo" field with value "bar" to all documents.
+  foreach ($documents as $id => $document) {
+    if ($document->ss_search_api_datasource == 'entity:civicrm_event') {
+      $document->setField('ss_type', 'Event');
+    }
+    if ($document->ss_search_api_datasource == 'entity:civicrm_contact') {
+      if(isset($document->ss_contact_type) && $document->ss_contact_type != "Provider") {
+//        unset($documents[$id]);
+//        continue;
+      }
+      $document->setField('ss_type', 'Contact');
+    }
+  }
+}
+
+
+/**
+ * Implements hook_entity_type_alter().
+ */
+function autism_solr_mods_entity_type_alter(array &$entity_types) {
+ // $entity_types['civicrm_contact']->setHandlerClass('access', CustomAccessHandler::class);
+}
+
+
