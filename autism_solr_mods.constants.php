@@ -1,0 +1,3 @@
+<?php
+define('SERVICE_LISTING_FIELD', '863');
+define('SERVICES_PROVIDED_FIELD', '866');

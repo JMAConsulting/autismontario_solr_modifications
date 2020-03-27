@@ -37,7 +37,7 @@ class SearchApiContactGroupProcessor extends ProcessorPluginBase {
     // This function prevents indexing Civi Contacts that are not in the Providers group.
 
     // We want to build a list of contact ids, derived from the current batch.
-    $contact_id_list = [];
+    $contact_id_list = $event_id_list = [];
 
     // Annoyingly, this doc comment is needed for PHPStorm. See
     // http://youtrack.jetbrains.com/issue/WI-23586
@@ -87,6 +87,39 @@ class SearchApiContactGroupProcessor extends ProcessorPluginBase {
 
       // Now $contact_id_list only has contacts to remove.
       foreach ($contact_id_list as $contact_id => $solr_item_id) {
+        unset($items[$solr_item_id]);
+      }
+    }
+
+    if (strpos($solr_item_id, 'civicrm_event') != FALSE) {
+      $event_id = str_replace('entity:civicrm_event/', '', $solr_item_id);
+      $event_id = explode(":", $event_id);
+      $event_id = $event_id[0];
+      $event_id_list[$event_id] = $solr_item_id;
+    }
+    if (count($event_id_list) > 0) {
+      $civicrm = \Drupal::service('civicrm')->initialize();
+      $query = 'SELECT id FROM civicrm_event WHERE is_template = 0 AND is_active = 1 AND is_public = 1 AND id IN (';
+      foreach ($event_id_list as $event_id => $solr_item_id) {
+        $query .= $event_id . ",";
+      }
+      // This will result in the query being like: c.id IN (1,2,3,4,
+      // Strip the last "," off.
+      $query = rtrim($query, ',');
+      // Close it uuup.
+      $query .= ');';
+
+      $events = \CRM_Core_DAO::executeQuery($query);
+
+      // event_id_list has all the contact IDs.
+      // We'll remove all the Provider contacts from this list.
+      // Then we'll have a list of Contacts we don't want to index.
+      while ($events->fetch()) {
+        unset($event_id_list[$events->id]);
+      }
+
+      // Now $event_id_list only has contacts to remove.
+      foreach ($event_id_list as $event_id => $solr_item_id) {
         unset($items[$solr_item_id]);
       }
     }

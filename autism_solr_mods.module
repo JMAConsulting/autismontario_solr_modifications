@@ -1,5 +1,6 @@
 <?php
 
+require_once 'autism_solor_mods.constants.php';
 
 /**
  * Alter Solr documents before they are sent to Solr for indexing.
@@ -23,66 +24,65 @@ function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\s
       $document->setField('tm_fr_chapters', getEventChapters($id, 'fr'));
       $document->setField('itm_field_chapter_reference', getNodeEventChapters($id));
       $document->setField('ss_type', 'Event');
+      if (isset($document->locs_field_geolocation)) {
+        $document->setField('bs_field_mapped_location', 'true');
+      }
     }
     if ($document->ss_search_api_datasource == 'entity:civicrm_contact') {
       if(isset($document->ss_contact_type) && $document->ss_contact_type != "Provider") {
-//        unset($documents[$id]);
-//        continue;
       }
       if (isset($document->ss_contact_sub_type) && $document->ss_contact_sub_type == "service_provider") {
+        if (!empty($document->bs_field_mapped_location_1)) {
+          $document->setField('bs_field_mapped_location', TRUE);
+        }
         $fields = ['863', '866', '867'];
+        $solr_field = 'tm_custom_' . SERVICE_LISTING_FIELD;
         $document->setField('ss_type', 'Service Listing');
-//        foreach ($fields as $field) {
-//          $fieldName = 'tm_custom_' . $field;
-          if (isset($document->tm_custom_863)) {
-            $values = $document->tm_custom_863;
-            $field = 863;
-            $frValues = $enValues = [];
-            if (is_array($values)) {
-              foreach ($values as $key => $value) {
-                $values[$key] = getOptionLabel($field, $value);
-                $enValues[$key] = getOptionLabel($field, $value);
-                $frValues[$key] = getOptionLabel($field, $value, 'fr');
-              }
+        if (isset($document->{$solrField})) {
+          $values = $document->{$solrField};
+          $frValues = $enValues = [];
+          $field = SERVICE_LISTING_FIELD;
+          if (is_array($values)) {
+            foreach ($values as $key => $value) {
+              $values[$key] = getOptionLabel($field, $value);
+              $enValues[$key] = getOptionLabel($field, $value);
+              $frValues[$key] = getOptionLabel($field, $value, 'fr');
             }
-            else {
-              $originalValue = $values;
-              $values = getOptionLabel($field, $originalValue);
-              $enValues = getOptionLabel($field, $originalValue);
-              $frValues = getOptionLabel($field, $originalValue, 'fr');
-            }
-            $document->setField('tm_en_custom_' . $field, $enValues);
-            $document->setField('sort_en_custom_' . $field, $enValues);
-            $document->setField('tm_fr_custom_' . $field, $frValues);
-            $document->setField('sort_fr_custom_' . $field, $frValues);
-            $document->setField('ism_custom_' . $field, $values);
-            $document->setField('sort_custom_' . $field, $values);
           }
-          if (isset($document->tm_custom_866)) {
-            $values = $document->tm_custom_866;
-            $field = 866;
-            $frValues = $enValues = [];
-            if (is_array($values)) {
-              foreach ($values as $key => $value) {
-                $values[$key] = getOptionLabel($field, $value);
-                $enValues[$key] = getOptionLabel($field, $value);
-                $frValues[$key] = getOptionLabel($field, $value, 'fr');
-              }
-            }
-            else {
-              $originalValue = $values;
-              $values = getOptionLabel($field, $originalValue);
-              $enValues = getOptionLabel($field, $originalValue);
-              $frValues = getOptionLabel($field, $originalValue, 'fr');
-            }
-            //$document->setField('tm_en_custom_' . $field, $enValues);
-            //$document->setField('sort_en_custom_' . $field, $enValues);
-            $document->setField('tm_fr_custom_' . $field, $frValues);
-            //$document->setField('sort_fr_custom_' . $field, $frValues);
-            $document->setField('tm_custom_' . $field, $values);
-            //$document->setField('sort_custom_' . $field, $values);
+          else {
+            $originalValue = $values;
+            $values = getOptionLabel($field, $originalValue);
+            $enValues = getOptionLabel($field, $originalValue);
+            $frValues = getOptionLabel($field, $originalValue, 'fr');
           }
-        //}
+          $document->setField('tm_en_custom_' . $field, $enValues);
+          $document->setField('sort_en_custom_' . $field, $enValues);
+          $document->setField('tm_fr_custom_' . $field, $frValues);
+          $document->setField('sort_fr_custom_' . $field, $frValues);
+          $document->setField('ism_custom_' . $field, $values);
+          $document->setField('sort_custom_' . $field, $values);
+        }
+        $solrField = 'tm_custom_' . SERVICES_PROVIDED_FIELD;
+        if (isset($document->{$solrField})) {
+          $values = $document->{$solrField};
+          $field = SERVICES_PROVIDED_FIELD;
+          $frValues = $enValues = [];
+          if (is_array($values)) {
+            foreach ($values as $key => $value) {
+              $values[$key] = getOptionLabel($field, $value);
+              $enValues[$key] = getOptionLabel($field, $value);
+              $frValues[$key] = getOptionLabel($field, $value, 'fr');
+            }
+          }
+          else {
+            $originalValue = $values;
+            $values = getOptionLabel($field, $originalValue);
+            $enValues = getOptionLabel($field, $originalValue);
+            $frValues = getOptionLabel($field, $originalValue, 'fr');
+          }
+          $document->setField('tm_fr_custom_' . $field, $frValues);
+          $document->setField('tm_custom_' . $field, $values);
+        }
         if (isset($document->tm_custom_60)) {
           $values = $document->tm_custom_60;
           $chapterIds = [];
@@ -95,6 +95,12 @@ function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\s
             $chapterIds[] = getChapterId($document->tm_custom_60);
           }
           $document->setField('itm_field_chapter_reference', $chapterIds);
+        }
+        $parts = explode('/', $document->ss_search_api_id);
+        $id = substr($parts[1], 0, strpos($parts[1], ':'));
+        $primaryAddress = civicrm_api('Address', 'get', ['contact_id' => $id, 'is_primary' => 1]);
+        if (!empty($primaryAddress['values']) && !empty($primaryAddress['values'][$primaryAddress['id']]['geo_code_1'])) {
+          $document->setField('bs_field_mapped_location', 'true');
         }
       }
       else {
@@ -162,5 +168,7 @@ function getChapterId($chapter) {
   $entity_id_field = $db_query->addField('tn', 'entity_id');
   $db_query->condition('tn.field_civicrm_chapter_value_value', $chapter);
   $result = $db_query->execute()->fetchAll();
-  return $result[0]->{$entity_id_field};
+  if (!empty($result)) {
+    return $result[0]->{$entity_id_field};
+  }
 }

@@ -62,6 +62,11 @@ class Query extends QueryBase implements QueryInterface {
       //];
       $params['custom_872'] = ['=' => 'Current Listing'];
     }
+    if ($this->entityTypeId == 'civicrm_event') {
+      $params['is_template'] = ['=' => 0];
+      $params['is_active'] = ['=' => 1];
+      $params['is_public'] = ['=' => 1];
+    }
 
     // The rest is just extending/overriding the Civicrm Entity classes/functions.
 
