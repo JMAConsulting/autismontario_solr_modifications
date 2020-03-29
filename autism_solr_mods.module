@@ -35,8 +35,7 @@ function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\s
         if (!empty($document->bs_field_mapped_location_1)) {
           $document->setField('bs_field_mapped_location', TRUE);
         }
-        $fields = ['863', '866', '867'];
-        $solr_field = 'tm_custom_' . SERVICE_LISTING_FIELD;
+        $solrField = 'tm_custom_' . SERVICE_LISTING_FIELD;
         $document->setField('ss_type', 'Service Listing');
         if (isset($document->{$solrField})) {
           $values = $document->{$solrField};
