@@ -1,6 +1,6 @@
 <?php
 
-require_once 'autism_solor_mods.constants.php';
+require_once 'autism_solr_mods.constants.php';
 
 /**
  * Alter Solr documents before they are sent to Solr for indexing.
@@ -20,9 +20,9 @@ function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\s
       $parts = explode('/', $document->ss_search_api_id);
       $id = substr($parts[1], 0, strpos($parts[1], ':'));
       $document->setField('tm_en_chapters', getEventChapters($id));
-      $document->setField('tm_custom_60', getEventChapters($id));
+      $document->setField('tm_custom_' . CONTACT_CHAPTER_FIELD, getEventChapters($id));
       $document->setField('tm_fr_chapters', getEventChapters($id, 'fr'));
-      $document->setField('itm_field_chapter_reference', getNodeEventChapters($id));
+      $document->setField(DRUPAL_CHAPTER_FIELD, getNodeEventChapters($id));
       $document->setField('ss_type', 'Event');
       if (isset($document->locs_field_geolocation)) {
         $document->setField('bs_field_mapped_location', 'true');
@@ -83,18 +83,19 @@ function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\s
           $document->setField('tm_fr_custom_' . $field, $frValues);
           $document->setField('tm_custom_' . $field, $values);
         }
-        if (isset($document->tm_custom_60)) {
-          $values = $document->tm_custom_60;
+        $solrField = 'tm_custom_' . CONTACT_CHAPTER_FIELD;
+        if (isset($document->{$solrField})) {
+          $values = $document->{$solrField};
           $chapterIds = [];
-          if (is_array($document->tm_custom_60)) {
-            foreach ($document->tm_custom_60 as $chapter) {
+          if (is_array($document->{$solrField})) {
+            foreach ($document->{$solrField} as $chapter) {
               $chapterIds[] = getChapterId($chapter);
             }
           }
           else {
-            $chapterIds[] = getChapterId($document->tm_custom_60);
+            $chapterIds[] = getChapterId($document->{$solrField});
           }
-          $document->setField('itm_field_chapter_reference', $chapterIds);
+          $document->setField(DRUPAL_CHAPTER_FIELD, $chapterIds);
         }
         $parts = explode('/', $document->ss_search_api_id);
         $id = substr($parts[1], 0, strpos($parts[1], ':'));
@@ -140,13 +141,13 @@ function getEventChapters($eventId, $language = 'en') {
   \Drupal::service('civicrm')->initialize();
   $params = [
     'id' => $eventId,
-    'return' => ['custom_325'],
+    'return' => ['custom_' . EVENT_CHAPTER_FIELD],
   ];
   if ($language == 'fr') {
     $params['options'] = ['language' => 'fr_CA'];
   }
   $event = civicrm_api3('Event', 'getsingle', $params);
-  return $event['custom_325'];
+  return $event['custom_' . EVENT_CHAPTER_FIELD];
 }
 
 function getNodeEventChapters($eventId) {
