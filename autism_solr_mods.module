@@ -19,9 +19,9 @@ function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\s
     if ($document->ss_search_api_datasource == 'entity:civicrm_event') {
       $parts = explode('/', $document->ss_search_api_id);
       $id = substr($parts[1], 0, strpos($parts[1], ':'));
-      $document->setField('tm_en_chapters', getEventChapters($id));
+      $document->setField('tm_X3b_en_chapters', getEventChapters($id));
       $document->setField('tm_custom_' . CONTACT_CHAPTER_FIELD, getEventChapters($id));
-      $document->setField('tm_fr_chapters', getEventChapters($id, 'fr'));
+      $document->setField('tm_X3b_fr_chapters', getEventChapters($id, 'fr'));
       $document->setField(DRUPAL_CHAPTER_FIELD, getNodeEventChapters($id));
       $document->setField('ss_type', 'Event');
       if (isset($document->locs_field_geolocation)) {
@@ -54,12 +54,13 @@ function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\s
             $enValues = getOptionLabel($field, $originalValue);
             $frValues = getOptionLabel($field, $originalValue, 'fr');
           }
-          $document->setField('tm_en_custom_' . $field, $enValues);
+          $document->setField('tm_X3b_en_custom_' . $field, $enValues);
           $document->setField('sort_en_custom_' . $field, $enValues);
-          $document->setField('tm_fr_custom_' . $field, $frValues);
+          $document->setField('tm_X3b_fr_custom_' . $field, $frValues);
           $document->setField('sort_fr_custom_' . $field, $frValues);
           $document->setField('ism_custom_' . $field, $values);
           $document->setField('sort_custom_' . $field, $values);
+          $document->setField('tm_custom_' . $field, $values);
         }
         $solrField = 'tm_custom_' . SERVICES_PROVIDED_FIELD;
         if (isset($document->{$solrField})) {
@@ -79,7 +80,8 @@ function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\s
             $enValues = getOptionLabel($field, $originalValue);
             $frValues = getOptionLabel($field, $originalValue, 'fr');
           }
-          $document->setField('tm_fr_custom_' . $field, $frValues);
+          $document->setField('tm_X3b_fr_custom_' . $field, $frValues);
+          $document->setField('tm_x3b_en_custom_' . $field, $values);
           $document->setField('tm_custom_' . $field, $values);
         }
         $solrField = 'tm_custom_' . CONTACT_CHAPTER_FIELD;
