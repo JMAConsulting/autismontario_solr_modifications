@@ -60,7 +60,7 @@ class Query extends QueryBase implements QueryInterface {
       //    '0' => 'Providers'
       //  ]
       //];
-      $params[SERVICE_PROVIDER_STATUS] = ['=' => 'Current Listing'];
+      $params[SERVICE_PROVIDER_STATUS] = ['=' => 'Approved'];
     }
     if ($this->entityTypeId == 'civicrm_event') {
       $params['is_template'] = ['=' => 0];

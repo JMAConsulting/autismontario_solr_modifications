@@ -65,7 +65,7 @@ class SearchApiContactGroupProcessor extends ProcessorPluginBase {
       $civicrm->initialize();
       $tableName = civicrm_api3('CustomGroup', 'getsingle', ['id' => SERVICE_PROVIDER_STATUS_CUSTOM_GROUP])['table_name'];
       $column = civicrm_api3('CustomField', 'getsingle', ['id' => SERVICE_PROVIDER_STATUS_ID])['column_name'];
-      $query = 'SELECT c.id FROM civicrm_contact c INNER JOIN ' . $tableName . ' s ON s.entity_id = c.id WHERE c.contact_sub_type LIKE "%Service%" AND s.' . $column . ' = "Current Listing" AND c.id IN (';
+      $query = 'SELECT c.id FROM civicrm_contact c INNER JOIN ' . $tableName . ' s ON s.entity_id = c.id WHERE c.contact_sub_type LIKE "%Service%" AND s.' . $column . ' = "Approved" AND c.id IN (';
       // Building the list of contact_ids for the "IN" clause of the query.
       foreach ($contact_id_list as $contact_id => $solr_item_id) {
         $query .= $contact_id . ",";
