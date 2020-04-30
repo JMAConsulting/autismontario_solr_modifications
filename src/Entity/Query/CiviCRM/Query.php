@@ -66,6 +66,7 @@ class Query extends QueryBase implements QueryInterface {
       $params['is_template'] = ['=' => 0];
       $params['is_active'] = ['=' => 1];
       $params['is_public'] = ['=' => 1];
+      $params['start_date'] = ['>=' => date('Y-m-d H:i:s')];
     }
 
     // The rest is just extending/overriding the Civicrm Entity classes/functions.
