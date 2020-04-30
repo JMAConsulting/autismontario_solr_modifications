@@ -174,3 +174,26 @@ function getChapterId($chapter) {
     return $result[0]->{$entity_id_field};
   }
 }
+
+function autism_solr_mods_cron() {
+  $db_query = \Drupal::database()->select('search_api_item', 'sai');
+  $entity_id_field = $db_query->addField('sai', 'item_id');
+  $db_query->condition('sai.datasource', 'entity:civicrm_event');
+  $results = $db_query->execute()->fetchAll();
+  $index = \Drupal\search_api\Entity\Index::load('default');
+  foreach ($result as $res) {
+    $id = $res->{$entity_id_field};
+    $parts = explode('/', $id);
+    $event_id = substr($parts[1], 0, strpos($parts[1], ':'));
+    \Drupal::service('civicrm')->initialize();
+    $eventDetails = civicrm_api3('Event', 'get', ['id' => $event_id, 'start_date' => ['>=' => date('Y-m-d H:i:s'));
+    if (empty($eventDetails['values'])) {
+      $index->trackItemsDeleted('entity:civicrm_event', $id);
+    }
+    if (!empty($eventDetails['values']))
+      if (empty($eventDetails['values'][$event_id]['is_public'])) {
+        $index->trackItemsDeleted('entity:civicrm_event', $id);
+      }
+    }
+  }
+}
