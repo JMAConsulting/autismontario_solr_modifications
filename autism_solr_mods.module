@@ -186,17 +186,6 @@ function autism_solr_mods_cron() {
     $id = $res->{$entity_id_field};
     $parts = explode('/', $id);
     $event_id = substr($parts[1], 0, strpos($parts[1], ':'));
-    $eventDetails = civicrm_api3('Event', 'get', ['id' => $event_id, 'start_date' => ['>=' => date('Y-m-d H:i:s')]]);
-    if (empty($eventDetails['values'])) {
-      $index->trackItemsDeleted('entity:civicrm_event', [$event_id . ':und']);
-    }
-    if (!empty($eventDetails['values'])) {
-      if (empty($eventDetails['values'][$event_id]['is_public'])) {
-        $index->trackItemsDeleted('entity:civicrm_event', [$event_id . ':und']);
-      }
-      if (empty($eventDetails['values'][$event_id]['is_active'])) {
-        $index->trackItemsDeleted('entity:civicrm_event', [$event_id . ':und']);
-      }
-    }
+    $index->trackItemsUpdated('entity:civicrm_event', [$event_id . ':und']);
   }
 }
