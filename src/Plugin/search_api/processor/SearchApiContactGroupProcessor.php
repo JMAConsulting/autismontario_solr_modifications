@@ -90,15 +90,17 @@ class SearchApiContactGroupProcessor extends ProcessorPluginBase {
       }
     }
 
-    if (strpos($solr_item_id, 'civicrm_event') != FALSE) {
-      $event_id = str_replace('entity:civicrm_event/', '', $solr_item_id);
-      $event_id = explode(":", $event_id);
-      $event_id = $event_id[0];
-      $event_id_list[$event_id] = $solr_item_id;
+    foreach ($items as $solr_item_id => $item) {
+      if (strpos($solr_item_id, 'civicrm_event') != FALSE) {
+        $event_id = str_replace('entity:civicrm_event/', '', $solr_item_id);
+        $event_id = explode(":", $event_id);
+        $event_id = $event_id[0];
+        $event_id_list[$event_id] = $solr_item_id;
+      }
     }
     if (count($event_id_list) > 0) {
       $civicrm = \Drupal::service('civicrm')->initialize();
-      $query = 'SELECT id FROM civicrm_event WHERE is_template = 0 AND is_active = 1 AND is_public = 1 AND id IN (';
+      $query = 'SELECT id FROM civicrm_event WHERE is_template = 0 AND is_active = 1 AND is_public = 1 AND start_date >= NOW() AND id IN (';
       foreach ($event_id_list as $event_id => $solr_item_id) {
         $query .= $event_id . ",";
       }
