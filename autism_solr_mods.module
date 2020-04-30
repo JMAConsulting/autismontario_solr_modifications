@@ -55,11 +55,8 @@ function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\s
             $frValues = getOptionLabel($field, $originalValue, 'fr');
           }
           $document->setField('tm_X3b_en_custom_' . $field, $enValues);
-          $document->setField('sort_en_custom_' . $field, $enValues);
           $document->setField('tm_X3b_fr_custom_' . $field, $frValues);
-          $document->setField('sort_fr_custom_' . $field, $frValues);
           $document->setField('ism_custom_' . $field, $values);
-          $document->setField('sort_custom_' . $field, $values);
           $document->setField('tm_custom_' . $field, $values);
         }
         $solrField = 'tm_custom_' . SERVICES_PROVIDED_FIELD;
