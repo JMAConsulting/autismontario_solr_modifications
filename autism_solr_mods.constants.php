@@ -7,3 +7,4 @@ define('DRUPAL_CHAPTER_FIELD', 'itm_field_chapter_reference');
 define('SERVICE_PROVIDER_STATUS', 'custom_904');
 define('SERVICE_PROVIDER_STATUS_ID', '904');
 define('SERVICE_PROVIDER_STATUS_CUSTOM_GROUP', '71');
+define('STATUS_FIELD', 'custom_904');
