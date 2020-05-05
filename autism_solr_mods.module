@@ -101,6 +101,7 @@ function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\s
         if (!empty($primaryAddress['values']) && !empty($primaryAddress['values'][$primaryAddress['id']]['geo_code_1'])) {
           $document->setField('bs_field_mapped_location', 'true');
         }
+        $document->setField('tm_organization_name', str_replace('Self-employed ', '', $document->tm_organization_name));
       }
       else {
         $document->setField('ss_type', 'Contact');
