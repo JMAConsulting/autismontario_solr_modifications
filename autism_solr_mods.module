@@ -1,5 +1,6 @@
 <?php
 
+require_once 'autism_solr_mods.constants.php';
 
 /**
  * Alter Solr documents before they are sent to Solr for indexing.
@@ -19,9 +20,9 @@ function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\s
       $parts = explode('/', $document->ss_search_api_id);
       $id = substr($parts[1], 0, strpos($parts[1], ':'));
       $document->setField('tm_en_chapters', getEventChapters($id));
-      $document->setField('tm_custom_60', getEventChapters($id));
+      $document->setField('tm_'. CONTACT_CHAPTER_FIELD, getEventChapters($id));
       $document->setField('tm_fr_chapters', getEventChapters($id, 'fr'));
-      $document->setField('itm_field_chapter_reference', getNodeEventChapters($id));
+      $document->setField(DRUPAL_CHAPTER_FIELD, getNodeEventChapters($id));
       $document->setField('ss_type', 'Event');
     }
     if ($document->ss_search_api_datasource == 'entity:civicrm_contact') {
@@ -46,13 +47,13 @@ function getEventChapters($eventId, $language = 'en') {
   \Drupal::service('civicrm')->initialize();
   $params = [
     'id' => $eventId,
-    'return' => ['custom_325'],
+    'return' => ['custom_' . EVENT_CHAPTER_FIELD],
   ];
   if ($language == 'fr') {
     $params['options'] = ['language' => 'fr_CA'];
   }
   $event = civicrm_api3('Event', 'getsingle', $params);
-  return $event['custom_325'];
+  return $event['custom_' . EVENT_CHAPTER_FIELD];
 }
 
 function getNodeEventChapters($eventId) {
