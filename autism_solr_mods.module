@@ -16,6 +16,12 @@ function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\s
   // Adds a "foo" field with value "bar" to all documents.
   foreach ($documents as $id => $document) {
     if ($document->ss_search_api_datasource == 'entity:civicrm_event') {
+      $parts = explode('/', $document->ss_search_api_id);
+      $id = substr($parts[1], 0, strpos($parts[1], ':'));
+      $document->setField('tm_en_chapters', getEventChapters($id));
+      $document->setField('tm_custom_60', getEventChapters($id));
+      $document->setField('tm_fr_chapters', getEventChapters($id, 'fr'));
+      $document->setField('itm_field_chapter_reference', getNodeEventChapters($id));
       $document->setField('ss_type', 'Event');
     }
     if ($document->ss_search_api_datasource == 'entity:civicrm_contact') {
@@ -36,4 +42,37 @@ function autism_solr_mods_entity_type_alter(array &$entity_types) {
  // $entity_types['civicrm_contact']->setHandlerClass('access', CustomAccessHandler::class);
 }
 
+function getEventChapters($eventId, $language = 'en') {
+  \Drupal::service('civicrm')->initialize();
+  $params = [
+    'id' => $eventId,
+    'return' => ['custom_325'],
+  ];
+  if ($language == 'fr') {
+    $params['options'] = ['language' => 'fr_CA'];
+  }
+  $event = civicrm_api3('Event', 'getsingle', $params);
+  return $event['custom_325'];
+}
 
+function getNodeEventChapters($eventId) {
+  $chapterIds = [];
+  $chapters = getEventChapters($eventId);
+  if (is_array($chapters)) {
+    foreach ($chapters as $chapter) {
+      $chapterIds[] = getChapterId($chapter);
+    }
+  }
+  else {
+    $chapterIds[] = getChapterId($chapters);
+  }
+  return $chapterIds;
+}
+
+function getChapterId($chapter) {
+  $db_query = \Drupal::database()->select('taxonomy_term__field_civicrm_chapter_value', 'tn');
+  $entity_id_field = $db_query->addField('tn', 'entity_id');
+  $db_query->condition('tn.field_civicrm_chapter_value_value', $chapter);
+  $result = $db_query->execute()->fetchAll();
+  return $result[0]->{$entity_id_field};
+}
