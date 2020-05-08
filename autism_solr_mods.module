@@ -55,11 +55,8 @@ function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\s
             $frValues = getOptionLabel($field, $originalValue, 'fr');
           }
           $document->setField('tm_X3b_en_custom_' . $field, $enValues);
-          $document->setField('sort_en_custom_' . $field, $enValues);
           $document->setField('tm_X3b_fr_custom_' . $field, $frValues);
-          $document->setField('sort_fr_custom_' . $field, $frValues);
           $document->setField('ism_custom_' . $field, $values);
-          $document->setField('sort_custom_' . $field, $values);
           $document->setField('tm_custom_' . $field, $values);
         }
         $solrField = 'tm_custom_' . SERVICES_PROVIDED_FIELD;
@@ -104,6 +101,7 @@ function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\s
         if (!empty($primaryAddress['values']) && !empty($primaryAddress['values'][$primaryAddress['id']]['geo_code_1'])) {
           $document->setField('bs_field_mapped_location', 'true');
         }
+        $document->setField('tm_organization_name', str_replace('Self-employed ', '', $document->tm_organization_name));
       }
       else {
         $document->setField('ss_type', 'Contact');
@@ -172,5 +170,61 @@ function getChapterId($chapter) {
   $result = $db_query->execute()->fetchAll();
   if (!empty($result)) {
     return $result[0]->{$entity_id_field};
+  }
+}
+
+/**
+ * Implements hook_cron().
+ */
+function autism_solr_mods_cron() {
+  \Drupal::service('civicrm')->initialize();
+  $db_query = \Drupal::database()->select('search_api_item', 'sai');
+  $entity_id_field = $db_query->addField('sai', 'item_id');
+  $db_query->condition('sai.datasource', 'entity:civicrm_event');
+  $results = $db_query->execute()->fetchAll();
+  $index = \Drupal\search_api\Entity\Index::load('default');
+  foreach ($results as $res) {
+    $id = $res->{$entity_id_field};
+    $parts = explode('/', $id);
+    $event_id = substr($parts[1], 0, strpos($parts[1], ':'));
+    $index->trackItemsUpdated('entity:civicrm_event', [$event_id . ':und']);
+  }
+}
+
+/**
+ * Implements hook_civicrm_postProcess().
+ */
+function autism_solr_mods_civicrm_postProcess($formName, &$form) {
+  if ($formName == "CRM_Contact_Form_Contact") {
+    if (!empty($form->_contactId) && count(preg_grep('/^' . STATUS_FIELD . '_[\d]*/', array_keys($form->_submitValues))) > 0) {
+      $index = \Drupal\search_api\Entity\Index::load('default');
+      $db_query = \Drupal::database()->select('search_api_item', 'sai');
+      $entity_id_field = $db_query->addField('sai', 'item_id');
+      $db_query->condition('sai.datasource', 'entity:civicrm_contact');
+      $db_query->condition('sai.item_id', 'entity:civicrm_contact/' . $form->_contactId . ':und');
+      $results = $db_query->execute()->fetchAll();
+      if (empty($results)) {
+        $index->trackItemsInserted('entity:civicrm_contact', [$form->_contactId . ':und']);
+      }
+      else {
+        $index->trackItemsUpdated('entity:civicrm_contact', [$form->_contactId . ':und']);
+      }
+    }
+  }
+  if ($formName == "CRM_Contact_Form_Inline_CustomData") {
+    if (!empty($form->_submitValues['cid']) && count(preg_grep('/^' . STATUS_FIELD . '_[\d]*/', array_keys($form->_submitValues))) > 0) {
+      $index = \Drupal\search_api\Entity\Index::load('default');
+      $db_query = \Drupal::database()->select('search_api_item', 'sai');
+      $entity_id_field = $db_query->addField('sai', 'item_id');
+      $db_query->condition('sai.datasource', 'entity:civicrm_contact');
+      $db_query->condition('sai.item_id', 'entity:civicrm_contact/' . $form->_submitValues['cid'] . ':und');
+      $results = $db_query->execute()->fetchAll();
+      if (empty($results)) {
+        $index->trackItemsInserted('entity:civicrm_contact', [$form->_submitValues['cid'] . ':und']);
+      }
+      else {
+        $index->trackItemsUpdated('entity:civicrm_contact', [$form->_submitValues['cid'] . ':und']);
+      }
+    }
   }
 }
