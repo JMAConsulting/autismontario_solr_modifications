@@ -22,7 +22,10 @@ function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\s
       $document->setField('tm_X3b_en_chapters', getEventChapters($id));
       $document->setField('tm_custom_' . CONTACT_CHAPTER_FIELD, getEventChapters($id));
       $document->setField('tm_X3b_fr_chapters', getEventChapters($id, 'fr'));
-      $document->setField(DRUPAL_CHAPTER_FIELD, getNodeEventChapters($id));
+      $nodeEventChapters = getNodeEventChapters($id);
+      if (!empty($nodeEventChapters)) {
+        $document->setField(DRUPAL_CHAPTER_FIELD, $nodeEventChapters);
+      }
       $document->setField('ss_type', 'Event');
       if (isset($document->locs_field_geolocation)) {
         $document->setField('bs_field_mapped_location', 'true');
@@ -87,13 +90,19 @@ function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\s
           $chapterIds = [];
           if (is_array($document->{$solrField})) {
             foreach ($document->{$solrField} as $chapter) {
-              $chapterIds[] = getChapterId($chapter);
+              if (!empty($chapter)) {
+                $chapterIds[] = getChapterId($chapter);
+              }
             }
           }
           else {
-            $chapterIds[] = getChapterId($document->{$solrField});
+            if (!empty($document->{$solrField})) {
+              $chapterIds[] = getChapterId($document->{$solrField});
+            }
           }
-          $document->setField(DRUPAL_CHAPTER_FIELD, $chapterIds);
+          if (!empty($chapterIds)) {
+            $document->setField(DRUPAL_CHAPTER_FIELD, $chapterIds);
+          }
         }
         $parts = explode('/', $document->ss_search_api_id);
         $id = substr($parts[1], 0, strpos($parts[1], ':'));
