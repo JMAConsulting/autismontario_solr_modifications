@@ -87,6 +87,28 @@ function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\s
           $document->setField('tm_x3b_en_custom_' . $field, $values);
           $document->setField('tm_custom_' . $field, $values);
         }
+        $solrField = 'tm_' . AGE_GROUPS_SERVED;
+        if (isset($document->{$solrField})) {
+          $values = $document->{$solrField};
+          $field = str_replace('custom_', '', AGE_GROUPS_SERVED);
+          $frValues = $enValues = [];
+          if (is_array($values)) {
+            foreach ($values as $key => $value) {
+              $values[$key] = getOptionLabel($field, $value);
+              $enValues[$key] = getOptionLabel($field, $value);
+              $frValues[$key] = getOptionLabel($field, $value, 'fr');
+            }
+          }
+          else {
+            $originalValue = $values;
+            $values = getOptionLabel($field, $originalValue);
+            $enValues = getOptionLabel($field, $originalValue);
+            $frValues = getOptionLabel($field, $originalValue, 'fr');
+          }
+          $document->setField('tm_fr_custom_' . $field, $frValues);
+          $document->setField('tm_en_custom_' . $field, $values);
+          $document->setField('tm_custom_' . $field, $values);
+        }
         $solrField = 'tm_custom_' . CONTACT_CHAPTER_FIELD;
         if (isset($document->{$solrField})) {
           $values = $document->{$solrField};
@@ -106,6 +128,16 @@ function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\s
           if (!empty($chapterIds)) {
             $document->setField(DRUPAL_CHAPTER_FIELD, $chapterIds);
           }
+        }
+        $solrField = 'tm_' . ABA_SERVICES_PROVIDED;
+        if (!empty($document->{$solrField})) {
+          $document->setField($solrField, 'Provides ABA Services');
+          $document->setField('tm_fr_' . ABA_SERVICES_PROVIDED, 'Fournissez des services en ACA?');
+        }
+        $solrField = 'tm_' . ACCEPTING_NEW_CLIENTS;
+        if (!empty($document->{$solrField})) {
+          $document->setField($solrField, 'Accepting new clients');
+          $document->setField('tm_fr_' . ACCEPTING_NEW_CLIENTS, 'Accepte de nouveaux clients');
         }
         $parts = explode('/', $document->ss_search_api_id);
         $id = substr($parts[1], 0, strpos($parts[1], ':'));

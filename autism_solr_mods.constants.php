@@ -8,3 +8,6 @@ define('SERVICE_PROVIDER_STATUS', 'custom_904');
 define('SERVICE_PROVIDER_STATUS_ID', '904');
 define('SERVICE_PROVIDER_STATUS_CUSTOM_GROUP', '71');
 define('STATUS_FIELD', 'custom_904');
+define('ABA_SERVICES_PROVIDED', 'custom_912');
+define('ACCEPTING_NEW_CLIENTS', 'custom_896');
+define('AGE_GROUPS_SERVED', 'custom_898');
