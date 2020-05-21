@@ -109,6 +109,29 @@ function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\s
           $document->setField('tm_en_custom_' . $field, $values);
           $document->setField('tm_custom_' . $field, $values);
         }
+        $solrField = 'tm_' . ABA_CREDENTIALS;
+        if (isset($document->{$solrField})) {
+          $values = $document->{$solrField};
+          $field = str_replace('custom_', '', ABA_CREDENTIALS);
+          $frValues = $enValues = [];
+          if (is_array($values)) {
+            foreach ($values as $key => $value) {
+              $values[$key] = getOptionLabel($field, $value);
+              $enValues[$key] = getOptionLabel($field, $value);
+              $frValues[$key] = getOptionLabel($field, $value, 'fr');
+            }
+          }
+          else {
+            $originalValue = $values;
+            $values = getOptionLabel($field, $originalValue);
+            $enValues = getOptionLabel($field, $originalValue);
+            $frValues = getOptionLabel($field, $originalValue, 'fr');
+          }
+          $document->setField('tm_fr_custom_' . $field, $frValues);
+          $document->setField('tm_en_custom_' . $field, $values);
+          $document->setField('tm_custom_' . $field, $values);
+        }
+        $solrField = 'tm_custom_' . CONTACT_CHAPTER_FIELD;
         $solrField = 'tm_custom_' . CONTACT_CHAPTER_FIELD;
         if (isset($document->{$solrField})) {
           $values = $document->{$solrField};

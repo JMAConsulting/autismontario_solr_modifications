@@ -11,3 +11,4 @@ define('STATUS_FIELD', 'custom_904');
 define('ABA_SERVICES_PROVIDED', 'custom_912');
 define('ACCEPTING_NEW_CLIENTS', 'custom_896');
 define('AGE_GROUPS_SERVED', 'custom_898');
+define('ABA_CREDENTIALS', 'custom_911');
