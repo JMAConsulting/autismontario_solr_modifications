@@ -22,6 +22,17 @@ function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\s
       $document->setField('tm_X3b_en_chapters', getEventChapters($id));
       $document->setField('tm_custom_' . CONTACT_CHAPTER_FIELD, getEventChapters($id));
       $document->setField('tm_X3b_fr_chapters', getEventChapters($id, 'fr'));
+      if (isset($document->locm_field_geolocation)) {
+        $document->setField('locm_field_geolocation_2', $document->locm_field_geolocation);
+      }
+      $solrField = 'ss_' . EVENT_LANGUAGE_FIELD;
+      if (isset($document->{$solrField})) {
+        $language = [$document->{$solrField}];
+        if ($document->{$solrField} === 'Bilingual') {
+          $language = ['English', 'french'];
+        }
+        $document->setField('tm_' . CONTACT_LANGUAGE_FIELD, $language);
+      }
       $nodeEventChapters = getNodeEventChapters($id);
       if (!empty($nodeEventChapters)) {
         $document->setField(DRUPAL_CHAPTER_FIELD, $nodeEventChapters);

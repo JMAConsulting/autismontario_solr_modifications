@@ -14,3 +14,5 @@ define('AGE_GROUPS_SERVED_FIELD', 'custom_898');
 define('ABA_CREDENTIALS_FIELD', 'custom_911');
 define('CAMP_TO_FIELD', 'custom_892');
 define('CAMP_FROM_FIELD', 'custom_891');
+define('EVENT_LANGUAGE_FIELD', 'custom_356');
+define('CONTACT_LANGUAGE_FIELD', 'custom_899');
