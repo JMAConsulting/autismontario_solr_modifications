@@ -22,6 +22,17 @@ function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\s
       $document->setField('tm_X3b_en_chapters', getEventChapters($id));
       $document->setField('tm_custom_' . CONTACT_CHAPTER_FIELD, getEventChapters($id));
       $document->setField('tm_X3b_fr_chapters', getEventChapters($id, 'fr'));
+      if (isset($document->locm_field_geolocation)) {
+        $document->setField('locm_field_geolocation_2', $document->locm_field_geolocation);
+      }
+      $solrField = 'ss_' . EVENT_LANGUAGE_FIELD;
+      if (isset($document->{$solrField})) {
+        $language = [$document->{$solrField}];
+        if ($document->{$solrField} === 'Bilingual') {
+          $language = ['English', 'french'];
+        }
+        $document->setField('tm_' . CONTACT_LANGUAGE_FIELD, $language);
+      }
       $nodeEventChapters = getNodeEventChapters($id);
       if (!empty($nodeEventChapters)) {
         $document->setField(DRUPAL_CHAPTER_FIELD, $nodeEventChapters);
@@ -87,10 +98,10 @@ function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\s
           $document->setField('tm_x3b_en_custom_' . $field, $values);
           $document->setField('tm_custom_' . $field, $values);
         }
-        $solrField = 'tm_' . AGE_GROUPS_SERVED;
+        $solrField = 'tm_' . AGE_GROUPS_SERVED_FIELD;
         if (isset($document->{$solrField})) {
           $values = $document->{$solrField};
-          $field = str_replace('custom_', '', AGE_GROUPS_SERVED);
+          $field = str_replace('custom_', '', AGE_GROUPS_SERVED_FIELD);
           $frValues = $enValues = [];
           if (is_array($values)) {
             foreach ($values as $key => $value) {
@@ -109,10 +120,10 @@ function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\s
           $document->setField('tm_en_custom_' . $field, $values);
           $document->setField('tm_custom_' . $field, $values);
         }
-        $solrField = 'tm_' . ABA_CREDENTIALS;
+        $solrField = 'tm_' . ABA_CREDENTIALS_FIELD;
         if (isset($document->{$solrField})) {
           $values = $document->{$solrField};
-          $field = str_replace('custom_', '', ABA_CREDENTIALS);
+          $field = str_replace('custom_', '', ABA_CREDENTIALS_FIELD);
           $frValues = $enValues = [];
           if (is_array($values)) {
             foreach ($values as $key => $value) {
@@ -157,16 +168,31 @@ function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\s
           $document->setField($solrField, 'Provides ABA Services');
           $document->setField('tm_fr_' . ABA_SERVICES_PROVIDED, 'Fournissez des services en ACA?');
         }
-        $solrField = 'tm_' . ACCEPTING_NEW_CLIENTS;
+        $solrField = 'tm_' . ACCEPTING_NEW_CLIENTS_FIELD;
         if (!empty($document->{$solrField})) {
           $document->setField($solrField, 'Accepting new clients');
-          $document->setField('tm_fr_' . ACCEPTING_NEW_CLIENTS, 'Accepte de nouveaux clients');
+          $document->setField('tm_fr_' . ACCEPTING_NEW_CLIENTS_FIELD, 'Accepte de nouveaux clients');
         }
         $parts = explode('/', $document->ss_search_api_id);
         $id = substr($parts[1], 0, strpos($parts[1], ':'));
         $primaryAddress = civicrm_api('Address', 'get', ['contact_id' => $id, 'is_primary' => 1]);
         if (!empty($primaryAddress['values']) && !empty($primaryAddress['values'][$primaryAddress['id']]['geo_code_1'])) {
           $document->setField('bs_field_mapped_location', 'true');
+        }
+        $campDateFields = [CAMP_TO_FIELD, CAMP_FROM_FIELD];
+        foreach ($campDateFields as $campField) {
+          $solrField = 'dm_' . $campField;
+          if (!empty($document->$solrField)) {
+            $parts = explode('/', $document->ss_search_api_id);
+            $id = substr($parts[1], 0, strpos($parts[1], ':'));
+            $dates = [];
+            $columnName = civicrm_api3('CustomField', 'getsingle', ['id' => str_replace('custom_', '', $campField)])['column_name'];
+            $mysqlDates = \CRM_Core_DAO::executeQuery("SELECT {$columnName} FROM civicrm_value_service_listi_72 WHERE entity_id = %1", [1 => [$id, 'Positive']])->fetchAll();
+            foreach ($mysqlDates as $mysqlDate) {
+              $dates[] = date('Y-m-d', strtotime($mysqlDate[$columnName])) . 'T12:00:00Z';
+            }
+            $document->setField('dm_' . $campField, $dates);
+          }
         }
         $document->setField('tm_organization_name', str_replace('Self-employed ', '', $document->tm_organization_name));
       }
@@ -293,5 +319,22 @@ function autism_solr_mods_civicrm_postProcess($formName, &$form) {
         $index->trackItemsUpdated('entity:civicrm_contact', [$form->_submitValues['cid'] . ':und']);
       }
     }
+  }
+}
+
+/**
+ * Change the way the index's field names are mapped to Solr field names.
+ *
+ * @param \Drupal\search_api\IndexInterface $index
+ *   The index whose field mappings are altered.
+ * @param array $fields
+ *   An associative array containing the index field names mapped to their Solr
+ *   counterparts. The special fields 'search_api_id' and 'search_api_relevance'
+ *   are also included.
+ */
+function autism_solr_mods_search_api_solr_field_mapping_alter(\Drupal\search_api\IndexInterface $index, array &$fields) {
+  $campDateFields = [CAMP_TO_FIELD, CAMP_FROM_FIELD];
+  foreach ($campDateFields as $campDateField) {
+    $fields[$campDateField] = 'dm_' . $campDateField;
   }
 }
