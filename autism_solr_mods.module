@@ -22,8 +22,9 @@ function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\s
       $document->setField('tm_X3b_en_chapters', getEventChapters($id));
       $document->setField('tm_custom_' . CONTACT_CHAPTER_FIELD, getEventChapters($id));
       $document->setField('tm_X3b_fr_chapters', getEventChapters($id, 'fr'));
-      if (isset($document->locm_field_geolocation)) {
-        $document->setField('locm_field_geolocation_2', $document->locm_field_geolocation);
+      if (isset($document->locs_field_geolocation)) {
+        $document->setField('locm_field_geolocation_2', [$document->locs_field_geolocation]);
+        $document->setField('locs_field_geolocation_2', $document->locs_field_geolocation);
       }
       $solrField = 'ss_' . EVENT_LANGUAGE_FIELD;
       if (isset($document->{$solrField})) {
@@ -120,9 +121,10 @@ function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\s
           $document->setField('tm_en_custom_' . $field, $values);
           $document->setField('tm_custom_' . $field, $values);
         }
-        $solrField = 'tm_' . ABA_CREDENTIALS_FIELD;
+        $solrField = 'sm_' . ABA_CREDENTIALS_FIELD;
         if (isset($document->{$solrField})) {
           $values = $document->{$solrField};
+          $originalValue = $values;
           $field = str_replace('custom_', '', ABA_CREDENTIALS_FIELD);
           $frValues = $enValues = [];
           if (is_array($values)) {
@@ -133,15 +135,16 @@ function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\s
             }
           }
           else {
-            $originalValue = $values;
             $values = getOptionLabel($field, $originalValue);
             $enValues = getOptionLabel($field, $originalValue);
             $frValues = getOptionLabel($field, $originalValue, 'fr');
           }
-          $document->setField('tm_fr_custom_' . $field, $frValues);
-          $document->setField('tm_en_custom_' . $field, $values);
-          $document->setField('tm_custom_' . $field, $values);
+          $document->setField('sm_fr_custom_' . $field, $frValues);
+          $document->setField('sm_en_custom_' . $field, $values);
+          $document->setField('sm_custom_' . $field, $originalValue);
+          $document->setField('sm_und_custom_' . $field, $originalValue);
         }
+        $document->removeField('ss_' . ABA_CREDENTIALS_FIELD);
         $solrField = 'tm_custom_' . CONTACT_CHAPTER_FIELD;
         $solrField = 'tm_custom_' . CONTACT_CHAPTER_FIELD;
         if (isset($document->{$solrField})) {
