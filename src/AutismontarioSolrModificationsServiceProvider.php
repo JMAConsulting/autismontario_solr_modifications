@@ -12,7 +12,7 @@ use Drupal\Core\DependencyInjection\ServiceProviderBase;
 /**
  * Modifies the CiviCRM Query service.
  */
-class AutismSolrModsServiceProvider extends ServiceProviderBase {
+class AutismontarioSolrModificationsServiceProvider extends ServiceProviderBase {
 
   /**
    * {@inheritdoc}
