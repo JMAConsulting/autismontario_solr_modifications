@@ -1,6 +1,6 @@
 services:
   entity.query.civicrm_entity:
-    class: '\Drupal\autism_solr_mods\Entity\Query\CiviCRM\QueryFactory'
+    class: '\Drupal\autismontario_solr_modifications\Entity\Query\CiviCRM\QueryFactory'
     arguments: ['@civicrm_entity.api']
     tags:
       - { name: backend_overridable }

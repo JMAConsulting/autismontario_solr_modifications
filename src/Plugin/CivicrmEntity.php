@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\autism_solr_mods\Plugin\autism_solr_mods\datasource;
+namespace Drupal\autismontario_solr_modifications\Plugin\autismontario_solr_modifications\datasource;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\ContentEntityInterface;

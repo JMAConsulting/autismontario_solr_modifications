@@ -1,6 +1,6 @@
 <?php
 
-require_once 'autism_solr_mods.constants.php';
+require_once 'autismontario_solr_modifications.constants.php';
 
 /**
  * Alter Solr documents before they are sent to Solr for indexing.
@@ -13,7 +13,7 @@ require_once 'autism_solr_mods.constants.php';
  * @param array $items
  *   An array of items being indexed.
  */
-function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\search_api\IndexInterface $index, array $items) {
+function autismontario_solr_modifications_search_api_solr_documents_alter(&$documents, \Drupal\search_api\IndexInterface $index, array $items) {
   // Adds a "foo" field with value "bar" to all documents.
   foreach ($documents as $id => $document) {
     if ($document->ss_search_api_datasource == 'entity:civicrm_event') {
@@ -210,7 +210,7 @@ function autism_solr_mods_search_api_solr_documents_alter(&$documents, \Drupal\s
 /**
  * Implements hook_entity_type_alter().
  */
-function autism_solr_mods_entity_type_alter(array &$entity_types) {
+function autismontario_solr_modifications_entity_type_alter(array &$entity_types) {
  // $entity_types['civicrm_contact']->setHandlerClass('access', CustomAccessHandler::class);
 }
 
@@ -272,7 +272,7 @@ function getChapterId($chapter) {
 /**
  * Implements hook_cron().
  */
-function autism_solr_mods_cron() {
+function autismontario_solr_modifications_cron() {
   \Drupal::service('civicrm')->initialize();
   $db_query = \Drupal::database()->select('search_api_item', 'sai');
   $entity_id_field = $db_query->addField('sai', 'item_id');
@@ -290,7 +290,7 @@ function autism_solr_mods_cron() {
 /**
  * Implements hook_civicrm_postProcess().
  */
-function autism_solr_mods_civicrm_postProcess($formName, &$form) {
+function autismontario_solr_modifications_civicrm_postProcess($formName, &$form) {
   if ($formName == "CRM_Contact_Form_Contact") {
     if (!empty($form->_contactId) && count(preg_grep('/^' . STATUS_FIELD . '_[\d]*/', array_keys($form->_submitValues))) > 0) {
       $index = \Drupal\search_api\Entity\Index::load('default');
@@ -335,7 +335,7 @@ function autism_solr_mods_civicrm_postProcess($formName, &$form) {
  *   counterparts. The special fields 'search_api_id' and 'search_api_relevance'
  *   are also included.
  */
-function autism_solr_mods_search_api_solr_field_mapping_alter(\Drupal\search_api\IndexInterface $index, array &$fields) {
+function autismontario_solr_modifications_search_api_solr_field_mapping_alter(\Drupal\search_api\IndexInterface $index, array &$fields) {
   $campDateFields = [CAMP_TO_FIELD, CAMP_FROM_FIELD];
   foreach ($campDateFields as $campDateField) {
     $fields[$campDateField] = 'dm_' . $campDateField;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\autism_solr_mods\Entity\Query\CiviCRM;
+namespace Drupal\autismontario_solr_modifications\Entity\Query\CiviCRM;
 
 use Drupal\Core\Entity\Query\ConditionBase;
 use Drupal\Core\Entity\Query\ConditionInterface;
@@ -16,7 +16,7 @@ class Condition extends ConditionBase {
   /**
    * The CiviCRM entity query object this condition belongs to.
    *
-   * @var \Drupal\autism_solr_mods\Entity\Query\CiviCRM\Query
+   * @var \Drupal\autismontario_solr_modifications\Entity\Query\CiviCRM\Query
    */
   protected $query;
 

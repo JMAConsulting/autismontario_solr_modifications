@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\autism_solr_mods\Entity\Query\CiviCRM;
+namespace Drupal\autismontario_solr_modifications\Entity\Query\CiviCRM;
 
 use Drupal\civicrm_entity\CiviCrmApi;
 use Drupal\Core\Entity\EntityTypeInterface;

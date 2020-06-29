@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\autism_solr_mods\Plugin\search_api\processor;
+namespace Drupal\autismontario_solr_modifications\Plugin\search_api\processor;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\PluginFormInterface;

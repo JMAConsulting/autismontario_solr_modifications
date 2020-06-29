@@ -1,10 +1,10 @@
 <?php
 /**
  * @file
- * Contains Drupal\autism_solr_mods\AutismContextServiceProvider
+ * Contains Drupal\autismontario_solr_modifications\AutismContextServiceProvider
  */
 
-namespace Drupal\autism_solr_mods;
+namespace Drupal\autismontario_solr_modifications;
 
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\DependencyInjection\ServiceProviderBase;
@@ -20,6 +20,6 @@ class AutismSolrModsServiceProvider extends ServiceProviderBase {
   public function alter(ContainerBuilder $container) {
     // menu active trail class
     $definition = $container->getDefinition('entity.query.civicrm_entity');
-    $definition->setClass('Drupal\autism_solr_mods\Entity\Query\CiviCRM\QueryFactory');
+    $definition->setClass('Drupal\autismontario_solr_modifications\Entity\Query\CiviCRM\QueryFactory');
   }
 }
