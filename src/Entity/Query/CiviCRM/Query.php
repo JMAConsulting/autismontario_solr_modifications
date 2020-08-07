@@ -26,28 +26,46 @@ class Query extends QueryBase implements QueryInterface {
   }
 
   /**
+   * Generate API Params based on a field condition
+   * @param array $condition
+   * @param array $params
+   * @return array
+   */
+  public function prepareAPIQuery(array $condition, array $params) {
+    // If there's anything requiring a custom field, set condition which cannot
+    // be completed.
+    // @todo Introduced when supporting field config. Find something better.
+    // @see \Drupal\field_ui\Form\FieldStorageConfigEditForm::validateCardinality()
+    if (substr($condition['field'], 0, 6) === 'field_') {
+      $params['id'] = '-1';
+      return;
+    }
+    $operator = $condition['operator'] ?: '=';
+    if ($operator == 'CONTAINS') {
+      $params[$condition['field']] = ['LIKE' => '%' . $condition['value'] . '%'];
+    }
+    elseif ($operator != '=') {
+      $params[$condition['field']] = [$operator => $condition['value']];
+    }
+    else {
+      $params[$condition['field']] = $condition['value'];
+    }
+    return $params;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function execute() {
     $params = [];
     foreach ($this->condition->conditions() as $condition) {
-      // If there's anything requiring a custom field, set condition which cannot
-      // be completed.
-      // @todo Introduced when supporting field config. Find something better.
-      // @see \Drupal\field_ui\Form\FieldStorageConfigEditForm::validateCardinality()
-      if (substr($condition['field'], 0, 6) === 'field_') {
-        $params['id'] = '-1';
-        break;
-      }
-      $operator = $condition['operator'] ?: '=';
-      if ($operator == 'CONTAINS') {
-        $params[$condition['field']] = ['LIKE' => '%' . $condition['value'] . '%'];
-      }
-      elseif ($operator != '=') {
-        $params[$condition['field']] = [$operator => $condition['value']];
+      if (is_object($condition['field'])) {
+        foreach ($condition['field']->conditions() as $con) {
+          $params = $this->prepareAPIQuery($con, $params);
+        }
       }
       else {
-        $params[$condition['field']] = $condition['value'];
+        $params = $this->prepareAPIQuery($con, $params);
       }
     }
 
