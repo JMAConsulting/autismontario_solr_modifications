@@ -62,13 +62,14 @@ function autismontario_solr_modifications_search_api_solr_documents_alter(&$docu
           if (is_array($values)) {
             foreach ($values as $key => $value) {
               $values[$key] = getOptionLabel($field, $value);
+              $values[$key . '_fr'] = getOptionLabel($field, $value, 'fr');
               $enValues[$key] = getOptionLabel($field, $value);
               $frValues[$key] = getOptionLabel($field, $value, 'fr');
             }
           }
           else {
             $originalValue = $values;
-            $values = getOptionLabel($field, $originalValue);
+            $values = [getOptionLabel($field, $originalValue), getOptionLabel($field, $originalValue, 'fr')];
             $enValues = getOptionLabel($field, $originalValue);
             $frValues = getOptionLabel($field, $originalValue, 'fr');
           }
@@ -85,18 +86,19 @@ function autismontario_solr_modifications_search_api_solr_documents_alter(&$docu
           if (is_array($values)) {
             foreach ($values as $key => $value) {
               $values[$key] = getOptionLabel($field, $value);
+              $values[$key . '_fr'] = getOptionLabel($field, $value, 'fr');
               $enValues[$key] = getOptionLabel($field, $value);
               $frValues[$key] = getOptionLabel($field, $value, 'fr');
             }
           }
           else {
             $originalValue = $values;
-            $values = getOptionLabel($field, $originalValue);
+            $values = [getOptionLabel($field, $originalValue), getOptionLabel($field, $originalValue, 'fr')];
             $enValues = getOptionLabel($field, $originalValue);
             $frValues = getOptionLabel($field, $originalValue, 'fr');
           }
           $document->setField('tm_X3b_fr_custom_' . $field, $frValues);
-          $document->setField('tm_x3b_en_custom_' . $field, $values);
+          $document->setField('tm_x3b_en_custom_' . $field, $enValues);
           $document->setField('tm_custom_' . $field, $values);
         }
         $solrField = 'tm_' . AGE_GROUPS_SERVED_FIELD;
@@ -107,18 +109,19 @@ function autismontario_solr_modifications_search_api_solr_documents_alter(&$docu
           if (is_array($values)) {
             foreach ($values as $key => $value) {
               $values[$key] = getOptionLabel($field, $value);
+              $values[$key . '_fr'] = getOptionLabel($field, $value, 'fr');
               $enValues[$key] = getOptionLabel($field, $value);
               $frValues[$key] = getOptionLabel($field, $value, 'fr');
             }
           }
           else {
             $originalValue = $values;
-            $values = getOptionLabel($field, $originalValue);
+            $values = [getOptionLabel($field, $originalValue), getOptionLabel($field, $originalValue, 'fr')];
             $enValues = getOptionLabel($field, $originalValue);
             $frValues = getOptionLabel($field, $originalValue, 'fr');
           }
           $document->setField('tm_fr_custom_' . $field, $frValues);
-          $document->setField('tm_en_custom_' . $field, $values);
+          $document->setField('tm_en_custom_' . $field, $enValues);
           $document->setField('tm_custom_' . $field, $values);
         }
         $solrField = 'sm_' . ABA_CREDENTIALS_FIELD;
@@ -130,17 +133,18 @@ function autismontario_solr_modifications_search_api_solr_documents_alter(&$docu
           if (is_array($values)) {
             foreach ($values as $key => $value) {
               $values[$key] = getOptionLabel($field, $value);
+              $values[$key . '_fr'] = getOptionLabel($field, $value, 'fr');
               $enValues[$key] = getOptionLabel($field, $value);
               $frValues[$key] = getOptionLabel($field, $value, 'fr');
             }
           }
           else {
-            $values = getOptionLabel($field, $originalValue);
+            $values = [getOptionLabel($field, $originalValue), getOptionLabel($field, $originalValue, 'fr')];
             $enValues = getOptionLabel($field, $originalValue);
             $frValues = getOptionLabel($field, $originalValue, 'fr');
           }
           $document->setField('sm_fr_custom_' . $field, $frValues);
-          $document->setField('sm_en_custom_' . $field, $values);
+          $document->setField('sm_en_custom_' . $field, $enValues);
           $document->setField('sm_custom_' . $field, $originalValue);
           $document->setField('sm_und_custom_' . $field, $originalValue);
         }
