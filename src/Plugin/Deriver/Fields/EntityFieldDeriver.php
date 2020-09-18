@@ -50,10 +50,10 @@ class EntityFieldDeriver extends EntityFieldDeriverBase {
 
     // Fields are usually multi-value. Simplify them for the schema if they are
     // configured for cardinality 1 (only works for configured fields).
-    if (!(($storageDefinition = $fieldDefinition->getFieldStorageDefinition()) && !$storageDefinition->isMultiple()) || in_array($fieldName, ['custom_898', 'custom_897', 'custom_899'])) {
+    if (!(($storageDefinition = $fieldDefinition->getFieldStorageDefinition()) && !$storageDefinition->isMultiple()) || in_array($fieldName, ['custom_898', 'custom_897', 'custom_899', 'custom_954', 'custom_953'])) {
       $derivative['type'] = StringHelper::listType($derivative['type']);
     }
-    if (in_array($fieldName, ['custom_898', 'custom_897', 'custom_899'])) {
+    if (in_array($fieldName, ['custom_898', 'custom_897', 'custom_899', 'custom_954', 'custom_953'])) {
       switch ($fieldName) {
         case 'custom_897':
           $derivative['optionGroupId'] = 232;
@@ -65,6 +65,14 @@ class EntityFieldDeriver extends EntityFieldDeriverBase {
 
         case 'custom_899':
           $derivative['optionGroupId'] = 105;
+          break;
+
+        case 'custom_954':
+          $derivative['optionGroupId'] = 231;
+          break;
+
+        case 'custom_953':
+          $derivative['optionGroupId'] = 236;
           break;
 
       }

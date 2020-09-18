@@ -60,7 +60,7 @@ class EntityField extends EntityFieldBase {
       $result = $item->get($property)->getValue();
       if (!empty($definition['optionGroupId'])) {
         if (!$result instanceof MarkupInterface) {
-          $result = \civicrm_api3('OptionValue', 'getsingle', ['option_group_id' => $definition['optionGroupId'], 'value' => $result])['label'];
+          $result = \civicrm_api3('OptionValue', 'get', ['sequential' => 1, 'option_group_id' => $definition['optionGroupId'], 'value' => $result])['values'][0]['label'];
         }
       }
       $result = $result instanceof MarkupInterface ? $result->__toString() : $result;
