@@ -96,6 +96,9 @@ class Query extends QueryBase implements QueryInterface {
         'offset' => $this->range['start'],
       ];
     }
+    if ($this->entityType->get('civicrm_entity') == 'option_value') {
+      $params['options']['sort'] = 'label ASC';
+    }
 
     if ($this->count) {
       return $this->civicrmApi->getCount($this->entityType->get('civicrm_entity'), $params);
