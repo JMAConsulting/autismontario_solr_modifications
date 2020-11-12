@@ -47,9 +47,6 @@ function autismontario_solr_modifications_search_api_solr_documents_alter(&$docu
       if(isset($document->ss_contact_type) && $document->ss_contact_type != "Provider") {
       }
       if (isset($document->ss_contact_sub_type) && $document->ss_contact_sub_type == "service_provider") {
-        if (!empty($document->locm_field_geolocation_2) && is_array($document->locm_field_geolocation_2)) {
-          $document->setField('locm_field_geolocation_2', $document->locs_field_geolocation_2);
-        }
         if (!empty($document->bs_field_mapped_location_1)) {
           $document->setField('bs_field_mapped_location', TRUE);
         }
