@@ -79,6 +79,7 @@ class Query extends QueryBase implements QueryInterface {
       //  ]
       //];
       $params[SERVICE_PROVIDER_STATUS] = ['=' => 'Approved'];
+      $params['is_deleted'] = 0;
     }
     if ($this->entityTypeId == 'civicrm_event') {
       $params['is_template'] = ['=' => 0];
