@@ -327,6 +327,43 @@ function autismontario_solr_modifications_civicrm_postProcess($formName, &$form)
 }
 
 /**
+ * Implement hook_civicrm_merge().
+ *
+ * We need to do this to track merging of contacts and ensure that the deleted one is removed from the solr index.
+ */
+function autismontario_solr_modifications_civicrm_merge($type, &$data, $mainId = NULL, $otherId = NULL, $tables = NULL) {
+  if ($type === 'sqls') {
+    $ids = [$otherId, $mainId];
+    foreach ($ids as $contact_id) {
+      $check = civicrm_api3('Contact', 'get', [
+        'id' => $contact_id,
+        SERVICE_PROVIDER_STATUS => 'Approved',
+        'contact_sub_type' => ['LIKE' => '%' . "Service" . '%'],
+      ]);
+      if (!empty($check['count'])) {
+        $index = \Drupal\search_api\Entity\Index::load('default');
+        $db_query = \Drupal::database()->select('search_api_item', 'sai');
+        $entity_id_field = $db_query->addField('sai', 'item_id');
+        $db_query->condition('sai.datasource', 'entity:civicrm_contact');
+        $db_query->condition('sai.item_id', 'entity:civicrm_contact/' . $contact_id . ':und');
+        $results = $db_query->execute()->fetchAll();
+        if (empty($results) && $contact_id !== $otherId) {
+          $index->trackItemsInserted('entity:civicrm_contact', [$contact_id . ':und']);
+        }
+        else {
+          if ($contact_id === $otherId) {
+            $index->trackItemsDeleted('entity:civicrm_contact', [$contact_id . ':und']);
+          }
+          else {
+            $index->trackItemsUpdated('entity:civicrm_contact', [$contact_id . ':und']);
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
  * Change the way the index's field names are mapped to Solr field names.
  *
  * @param \Drupal\search_api\IndexInterface $index
