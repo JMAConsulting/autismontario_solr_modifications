@@ -338,7 +338,7 @@ function autismontario_solr_modifications_civicrm_merge($type, &$data, $mainId =
       $check = civicrm_api3('Contact', 'get', [
         'id' => $contact_id,
         SERVICE_PROVIDER_STATUS => 'Approved',
-        'contact_sub_type' = ['LIKE' => '%' . "Service" . '%'],
+        'contact_sub_type' => ['LIKE' => '%' . "Service" . '%'],
       ]);
       if (!empty($check['count'])) {
         $index = \Drupal\search_api\Entity\Index::load('default');
@@ -347,11 +347,16 @@ function autismontario_solr_modifications_civicrm_merge($type, &$data, $mainId =
         $db_query->condition('sai.datasource', 'entity:civicrm_contact');
         $db_query->condition('sai.item_id', 'entity:civicrm_contact/' . $contact_id . ':und');
         $results = $db_query->execute()->fetchAll();
-        if (empty($results)) {
+        if (empty($results) && $contact_id !== $otherId) {
           $index->trackItemsInserted('entity:civicrm_contact', [$contact_id . ':und']);
         }
         else {
-          $index->trackItemsUpdated('entity:civicrm_contact', [$contact_id . ':und']);
+          if ($contact_id === $otherId) {
+            $index->trackItemsDeleted('entity:civicrm_contact', [$contact_id . ':und']);
+          }
+          else {
+            $index->trackItemsUpdated('entity:civicrm_contact', [$contact_id . ':und']);
+          }
         }
       }
     }
