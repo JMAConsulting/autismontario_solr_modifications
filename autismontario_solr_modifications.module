@@ -242,8 +242,7 @@ function getEventChapters($eventId, $language = 'en') {
   if ($language == 'fr') {
     $params['options'] = ['language' => 'fr_CA'];
   }
-  $event = civicrm_api3('Event', 'getsingle', $params);
-  return $event['custom_' . EVENT_CHAPTER_FIELD];
+  return civicrm_api3('Event', 'getsingle', $params)['custom_' . EVENT_CHAPTER_FIELD] ?? NULL;
 }
 
 function getNodeEventChapters($eventId) {
