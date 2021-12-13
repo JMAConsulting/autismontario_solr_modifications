@@ -65,7 +65,7 @@ class Query extends QueryBase implements QueryInterface {
         }
       }
       else {
-        $params = $this->prepareAPIQuery($con, $params);
+        $params = $this->prepareAPIQuery($condition, $params);
       }
     }
 
