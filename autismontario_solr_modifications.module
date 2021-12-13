@@ -20,7 +20,7 @@ function autismontario_solr_modifications_search_api_solr_documents_alter(&$docu
       $parts = explode('/', $document->ss_search_api_id);
       $id = substr($parts[1], 0, strpos($parts[1], ':'));
       $document->setField('tm_X3b_en_chapters', getEventChapters($id));
-      $document->setField('tm_custom_' . CONTACT_CHAPTER_FIELD, getEventChapters($id));
+      $document->setField('tm_X3b_und_custom_' . CONTACT_CHAPTER_FIELD, getEventChapters($id));
       $document->setField('tm_X3b_fr_chapters', getEventChapters($id, 'fr'));
       if (isset($document->locs_field_geolocation)) {
         $document->setField('locm_field_geolocation_2', [$document->locs_field_geolocation]);
@@ -32,7 +32,7 @@ function autismontario_solr_modifications_search_api_solr_documents_alter(&$docu
         if ($document->{$solrField} === 'Bilingual') {
           $language = ['English', 'french'];
         }
-        $document->setField('tm_' . CONTACT_LANGUAGE_FIELD, $language);
+        $document->setField('tm_X3b_und_' . CONTACT_LANGUAGE_FIELD, $language);
       }
       $nodeEventChapters = getNodeEventChapters($id);
       if (!empty($nodeEventChapters)) {
@@ -50,7 +50,7 @@ function autismontario_solr_modifications_search_api_solr_documents_alter(&$docu
         if (!empty($document->bs_field_mapped_location_1)) {
           $document->setField('bs_field_mapped_location', TRUE);
         }
-        $solrField = 'tm_custom_' . SERVICE_LISTING_FIELD;
+        $solrField = 'tm_X3b_und_custom_' . SERVICE_LISTING_FIELD;
         $document->setField('ss_type', 'Service Listing');
         if (isset($document->{$solrField})) {
           $values = $document->{$solrField};
@@ -72,10 +72,10 @@ function autismontario_solr_modifications_search_api_solr_documents_alter(&$docu
           }
           $document->setField('tm_X3b_en_custom_' . $field, $enValues);
           $document->setField('tm_X3b_fr_custom_' . $field, $frValues);
-          $document->setField('ism_custom_' . $field, $values);
-          $document->setField('tm_custom_' . $field, $values);
+          $document->setField('ism_X3b_und_custom_' . $field, $values);
+          $document->setField('tm_X3b_und_custom_' . $field, $values);
         }
-        $solrField = 'tm_custom_' . SERVICES_PROVIDED_FIELD;
+        $solrField = 'tm_X3b_und_custom_' . SERVICES_PROVIDED_FIELD;
         if (isset($document->{$solrField})) {
           $values = $document->{$solrField};
           $field = SERVICES_PROVIDED_FIELD;
@@ -96,9 +96,9 @@ function autismontario_solr_modifications_search_api_solr_documents_alter(&$docu
           }
           $document->setField('tm_X3b_fr_custom_' . $field, $frValues);
           $document->setField('tm_x3b_en_custom_' . $field, $enValues);
-          $document->setField('tm_custom_' . $field, $values);
+          $document->setField('tm_X3b_und_custom_' . $field, $values);
         }
-        $solrField = 'tm_' . AGE_GROUPS_SERVED_FIELD;
+        $solrField = 'tm_X3b_und_' . AGE_GROUPS_SERVED_FIELD;
         if (isset($document->{$solrField})) {
           $values = $document->{$solrField};
           $field = str_replace('custom_', '', AGE_GROUPS_SERVED_FIELD);
@@ -117,9 +117,9 @@ function autismontario_solr_modifications_search_api_solr_documents_alter(&$docu
             $enValues = getOptionLabel($field, $originalValue);
             $frValues = getOptionLabel($field, $originalValue, 'fr');
           }
-          $document->setField('tm_fr_custom_' . $field, $frValues);
-          $document->setField('tm_en_custom_' . $field, $enValues);
-          $document->setField('tm_custom_' . $field, $values);
+          $document->setField('tm_X3b_fr_custom_' . $field, $frValues);
+          $document->setField('tm_X3b_en_custom_' . $field, $enValues);
+          $document->setField('tm_X3b_und_custom_' . $field, $values);
         }
         $solrField = 'sm_' . ABA_CREDENTIALS_FIELD;
         if (isset($document->{$solrField})) {
@@ -146,8 +146,7 @@ function autismontario_solr_modifications_search_api_solr_documents_alter(&$docu
           $document->setField('sm_und_custom_' . $field, $originalValue);
         }
         $document->removeField('ss_' . ABA_CREDENTIALS_FIELD);
-        $solrField = 'tm_custom_' . CONTACT_CHAPTER_FIELD;
-        $solrField = 'tm_custom_' . CONTACT_CHAPTER_FIELD;
+        $solrField = 'tm_X3b_und_custom_' . CONTACT_CHAPTER_FIELD;
         if (isset($document->{$solrField})) {
           $values = $document->{$solrField};
           $chapterIds = [];
@@ -167,15 +166,15 @@ function autismontario_solr_modifications_search_api_solr_documents_alter(&$docu
             $document->setField(DRUPAL_CHAPTER_FIELD, $chapterIds);
           }
         }
-        $solrField = 'tm_' . ABA_SERVICES_PROVIDED;
+        $solrField = 'tm_X3b_und_' . ABA_SERVICES_PROVIDED;
         if (!empty($document->{$solrField})) {
           $document->setField($solrField, 'Provides ABA Services');
-          $document->setField('tm_fr_' . ABA_SERVICES_PROVIDED, 'Fournissez des services en ACA?');
+          $document->setField('tm_X3b_fr_' . ABA_SERVICES_PROVIDED, 'Fournissez des services en ACA?');
         }
-        $solrField = 'tm_' . ACCEPTING_NEW_CLIENTS_FIELD;
+        $solrField = 'tm_X3b_und_' . ACCEPTING_NEW_CLIENTS_FIELD;
         if (!empty($document->{$solrField})) {
           $document->setField($solrField, 'Accepting new clients');
-          $document->setField('tm_fr_' . ACCEPTING_NEW_CLIENTS_FIELD, 'Accepte de nouveaux clients');
+          $document->setField('tm_X3b_fr_' . ACCEPTING_NEW_CLIENTS_FIELD, 'Accepte de nouveaux clients');
         }
         $parts = explode('/', $document->ss_search_api_id);
         $id = substr($parts[1], 0, strpos($parts[1], ':'));
